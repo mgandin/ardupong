@@ -1,5 +1,6 @@
 #include <Arduboy.h>
 #include "ball.h"
+#include "paddle.h"
 Arduboy arduboy;
 
 // Game
@@ -13,8 +14,7 @@ Ball ball = Ball(62, 0, 4);
 // Paddle
 int paddleWidth = 4;
 int paddleHeight = 9;
-int playerX = 0;
-int playerY = 0;
+Paddle player = Paddle(0, 0, 4, 9);
 
 // Computer paddle
 int computerX = 127 - paddleWidth;
@@ -46,7 +46,7 @@ void loop() {
       // Gameplay
       arduboy.fillRect(ball.getX(), ball.getY(), ball.getSize(), ball.getSize(), WHITE);
       ball.move();
-      arduboy.fillRect(playerX, playerY, paddleWidth, paddleHeight, WHITE);
+      arduboy.fillRect(player.getX(), player.getY(), player.getWidth(), player.getHeight(), WHITE);
       movePaddle();
       arduboy.fillRect(computerX, computerY, paddleWidth, paddleHeight, WHITE);
       moveComputer();
@@ -58,7 +58,7 @@ void loop() {
       score();
       if(arduboy.pressed(A_BUTTON) and justPressed == 0) {
         justPressed = 1;
-        gameState = 2;
+        gameState = 0;
       }
       break;
     case 2:
@@ -88,11 +88,11 @@ void loop() {
 
 // Paddle
 void movePaddle() {
-  if(arduboy.pressed(UP_BUTTON) and playerY > 0) {
-    playerY--;
+  if(arduboy.pressed(UP_BUTTON) and player.canGoUp()) {
+    player.up();
   }
-  if(arduboy.pressed(DOWN_BUTTON) and playerY + paddleHeight < 63) {
-    playerY++;
+  if(arduboy.pressed(DOWN_BUTTON) and player.canGoDown()) {
+    player.down();
   }
 }
 
@@ -110,7 +110,7 @@ void moveComputer() {
 
 // Game
 void bounce() {
-  if(ball.getX() == playerX + paddleWidth and playerY < ball.getY() + ball.getSize() and playerY + paddleHeight > ball.getY()) {
+  if(ball.getX() == player.getX() + player.getWidth() and player.getY() < ball.getY() + ball.getSize() and player.getY() + player.getHeight() > ball.getY()) {
     ball.goToRight();
   }
   if(ball.getX() + ball.getSize() == computerX and computerY < ball.getY() + ball.getSize() and computerY + paddleHeight > ball.getY()) {
