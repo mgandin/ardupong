@@ -1,4 +1,5 @@
 #include <Arduboy.h>
+#include "ball.h"
 Arduboy arduboy;
 
 // Game
@@ -8,12 +9,7 @@ int playerScore = 0;
 int computerScore = 0;
 
 // Ball
-int ballX = 62;
-int ballY = 0;
-int ballSize = 4;
-int ballRight = 1;
-int ballDown = 1;
-
+Ball ball = Ball(62, 0, 4);
 // Paddle
 int paddleWidth = 4;
 int paddleHeight = 9;
@@ -48,8 +44,8 @@ void loop() {
       break;
     case 1:
       // Gameplay
-      arduboy.fillRect(ballX, ballY, ballSize, ballSize, WHITE);
-      moveBall();
+      arduboy.fillRect(ball.getX(), ball.getY(), ball.getSize(), ball.getSize(), WHITE);
+      ball.move();
       arduboy.fillRect(playerX, playerY, paddleWidth, paddleHeight, WHITE);
       movePaddle();
       arduboy.fillRect(computerX, computerY, paddleWidth, paddleHeight, WHITE);
@@ -90,19 +86,6 @@ void loop() {
   arduboy.display();
 }
 
-// Ball
-void moveBall() {
-  ballRight == 1 ? ballX++ : ballX--;
- 
-  ballDown == 1 ? ballY++ : ballY--;
-  if(ballY == 0) {
-    ballDown = 1;
-  }
-  if(ballY + ballSize == 63) {
-    ballDown = -1;
-  }
-}
-
 // Paddle
 void movePaddle() {
   if(arduboy.pressed(UP_BUTTON) and playerY > 0) {
@@ -115,11 +98,11 @@ void movePaddle() {
 
 // Computer Paddle
 void moveComputer() {
-  if(ballX > 115 or rand() % 20 == 1) {
-    if(ballY < computerY) {
+  if(ball.getX() > 115 or rand() % 20 == 1) {
+    if(ball.getY() < computerY) {
       computerY--;
     }
-    if(ballY + ballSize > computerY + paddleHeight) {
+    if(ball.getY() + ball.getSize() > computerY + paddleHeight) {
       computerY++;
     }    
   }
@@ -127,21 +110,21 @@ void moveComputer() {
 
 // Game
 void bounce() {
-  if(ballX == playerX + paddleWidth and playerY < ballY + ballSize and playerY + paddleHeight > ballY) {
-    ballRight = 1;
+  if(ball.getX() == playerX + paddleWidth and playerY < ball.getY() + ball.getSize() and playerY + paddleHeight > ball.getY()) {
+    ball.goToRight();
   }
-  if(ballX + ballSize == computerX and computerY < ballY + ballSize and computerY + paddleHeight > ballY) {
-    ballRight = -1;
+  if(ball.getX() + ball.getSize() == computerX and computerY < ball.getY() + ball.getSize() and computerY + paddleHeight > ball.getY()) {
+    ball.goToLeft();
   }
 }
 
 void score() {
-  if(ballX < -10) {
-    ballX = 63;
+  if(ball.getX() < -10) {
+    ball.reset();
     computerScore++;
   }
-  if(ballX > 130) {
-    ballX = 63;
+  if(ball.getX() > 130) {
+    ball.reset();
     playerScore++;
   }
   if(playerScore == 5) {
@@ -153,7 +136,7 @@ void score() {
 }
 
 void resetGame() {
-  ballX = 63;
+  ball.reset();
   playerScore = 0;
   computerScore = 0;
 }
