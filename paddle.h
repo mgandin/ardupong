@@ -2,7 +2,7 @@
 #define PADDLE_H
 
 class Paddle {
-  private :
+  protected :
     int x;
     int y;
     int width;
